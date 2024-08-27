@@ -19,7 +19,12 @@ function isValidGameState(state: any): state is GameState {
     state.playerPosition &&
     typeof state.playerPosition.x === 'number' &&
     typeof state.playerPosition.y === 'number' &&
-    Array.isArray(state.platforms);
+    Array.isArray(state.platforms) &&
+    state.platforms.every(p => 
+      typeof p.x === 'number' &&
+      typeof p.y === 'number' &&
+      typeof p.width === 'number'
+    );
 }
 
 const App: React.FC = () => {
@@ -105,7 +110,7 @@ const App: React.FC = () => {
       if (isValidGameState(initialState)) {
         setGameState(initialState);
       } else {
-        console.error('Invalid initial game state received from backend');
+        console.error('Invalid initial game state received from backend:', initialState);
       }
     } catch (error) {
       console.error('Error starting game:', error);
@@ -118,7 +123,7 @@ const App: React.FC = () => {
       if (isValidGameState(newState)) {
         setGameState(newState);
       } else {
-        console.error('Invalid game state received from backend');
+        console.error('Invalid game state received from backend:', newState);
       }
     } catch (error) {
       console.error('Error updating game state:', error);
@@ -140,7 +145,7 @@ const App: React.FC = () => {
           if (isValidGameState(newState)) {
             setGameState(newState);
           } else {
-            console.error('Invalid game state received from backend after jump');
+            console.error('Invalid game state received from backend after jump:', newState);
           }
         } catch (error) {
           console.error('Error handling jump:', error);

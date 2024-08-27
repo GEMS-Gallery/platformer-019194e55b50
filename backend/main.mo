@@ -6,6 +6,7 @@ import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Option "mo:base/Option";
 import Int "mo:base/Int";
+import Debug "mo:base/Debug";
 
 actor {
   // Types
@@ -67,7 +68,7 @@ actor {
 
   // Public functions
   public func startGame() : async GameState {
-    let initialState = {
+    let initialState : GameState = {
       level = 1;
       score = 0;
       isGameOver = false;
@@ -75,13 +76,14 @@ actor {
       platforms = generatePlatforms();
     };
     gameState := ?initialState;
+    Debug.print("Starting new game with state: " # debug_show(initialState));
     initialState
   };
 
   public func updateGameState(input : { jump : Bool }) : async GameState {
     switch (gameState) {
       case (null) {
-        // If there's no game state, start a new game
+        Debug.print("No game state found, starting new game");
         await startGame()
       };
       case (?state) {
@@ -131,6 +133,7 @@ actor {
         };
 
         gameState := ?newState;
+        Debug.print("Updated game state: " # debug_show(newState));
         newState
       };
     }
