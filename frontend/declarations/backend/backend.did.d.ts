@@ -14,8 +14,8 @@ export interface Position { 'x' : number, 'y' : number }
 export interface _SERVICE {
   'getGameState' : ActorMethod<[], [] | [GameState]>,
   'getHighScore' : ActorMethod<[], bigint>,
-  'startGame' : ActorMethod<[], undefined>,
-  'updateGameState' : ActorMethod<[{ 'jump' : boolean }], [] | [GameState]>,
+  'startGame' : ActorMethod<[], GameState>,
+  'updateGameState' : ActorMethod<[{ 'jump' : boolean }], GameState>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

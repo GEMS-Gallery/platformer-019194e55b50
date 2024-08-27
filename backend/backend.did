@@ -20,6 +20,6 @@ type GameState =
 service : {
   getGameState: () -> (opt GameState) query;
   getHighScore: () -> (nat) query;
-  startGame: () -> ();
-  updateGameState: (record {jump: bool;}) -> (opt GameState);
+  startGame: () -> (GameState);
+  updateGameState: (record {jump: bool;}) -> (GameState);
 }

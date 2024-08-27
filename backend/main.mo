@@ -66,19 +66,24 @@ actor {
   };
 
   // Public functions
-  public func startGame() : async () {
-    gameState := ?{
+  public func startGame() : async GameState {
+    let initialState = {
       level = 1;
       score = 0;
       isGameOver = false;
       playerPosition = { x = 50.0; y = GAME_HEIGHT / 2.0 };
       platforms = generatePlatforms();
     };
+    gameState := ?initialState;
+    initialState
   };
 
-  public func updateGameState(input : { jump : Bool }) : async ?GameState {
+  public func updateGameState(input : { jump : Bool }) : async GameState {
     switch (gameState) {
-      case (null) { return null; };
+      case (null) {
+        // If there's no game state, start a new game
+        await startGame()
+      };
       case (?state) {
         var newState = state;
 
@@ -126,9 +131,9 @@ actor {
         };
 
         gameState := ?newState;
-        return gameState;
+        newState
       };
-    };
+    }
   };
 
   public query func getGameState() : async ?GameState {

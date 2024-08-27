@@ -11,6 +11,17 @@ type GameState = {
   platforms: { x: number; y: number; width: number }[];
 };
 
+function isValidGameState(state: any): state is GameState {
+  return state &&
+    typeof state.level === 'number' &&
+    typeof state.score === 'number' &&
+    typeof state.isGameOver === 'boolean' &&
+    state.playerPosition &&
+    typeof state.playerPosition.x === 'number' &&
+    typeof state.playerPosition.y === 'number' &&
+    Array.isArray(state.platforms);
+}
+
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [highScore, setHighScore] = useState<number>(0);
@@ -90,8 +101,12 @@ const App: React.FC = () => {
 
   const startGame = async () => {
     try {
-      await backend.startGame();
-      updateGameState();
+      const initialState = await backend.startGame();
+      if (isValidGameState(initialState)) {
+        setGameState(initialState);
+      } else {
+        console.error('Invalid initial game state received from backend');
+      }
     } catch (error) {
       console.error('Error starting game:', error);
     }
@@ -100,21 +115,10 @@ const App: React.FC = () => {
   const updateGameState = async () => {
     try {
       const newState = await backend.updateGameState({ jump: false });
-      if (newState) {
-        setGameState({
-          level: Number(newState.level),
-          score: Number(newState.score),
-          isGameOver: newState.isGameOver,
-          playerPosition: {
-            x: Number(newState.playerPosition.x),
-            y: Number(newState.playerPosition.y),
-          },
-          platforms: newState.platforms.map((p) => ({
-            x: Number(p.x),
-            y: Number(p.y),
-            width: Number(p.width),
-          })),
-        });
+      if (isValidGameState(newState)) {
+        setGameState(newState);
+      } else {
+        console.error('Invalid game state received from backend');
       }
     } catch (error) {
       console.error('Error updating game state:', error);
@@ -132,8 +136,12 @@ const App: React.FC = () => {
     const handleKeyPress = async (event: KeyboardEvent) => {
       if (event.code === 'Space') {
         try {
-          await backend.updateGameState({ jump: true });
-          updateGameState();
+          const newState = await backend.updateGameState({ jump: true });
+          if (isValidGameState(newState)) {
+            setGameState(newState);
+          } else {
+            console.error('Invalid game state received from backend after jump');
+          }
         } catch (error) {
           console.error('Error handling jump:', error);
         }

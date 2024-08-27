@@ -15,10 +15,10 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'getGameState' : IDL.Func([], [IDL.Opt(GameState)], ['query']),
     'getHighScore' : IDL.Func([], [IDL.Nat], ['query']),
-    'startGame' : IDL.Func([], [], []),
+    'startGame' : IDL.Func([], [GameState], []),
     'updateGameState' : IDL.Func(
         [IDL.Record({ 'jump' : IDL.Bool })],
-        [IDL.Opt(GameState)],
+        [GameState],
         [],
       ),
   });
