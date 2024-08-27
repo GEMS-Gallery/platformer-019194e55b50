@@ -26,8 +26,12 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const fetchHighScore = async () => {
-      const score = await backend.getHighScore();
-      setHighScore(Number(score));
+      try {
+        const score = await backend.getHighScore();
+        setHighScore(Number(score));
+      } catch (error) {
+        console.error('Error fetching high score:', error);
+      }
     };
     fetchHighScore();
   }, []);
@@ -61,9 +65,13 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (gameState && sceneRef.current && playerRef.current) {
+    if (gameState?.playerPosition && sceneRef.current && playerRef.current) {
       // Update player position
-      playerRef.current.position.set(gameState.playerPosition.x, GAME_HEIGHT - gameState.playerPosition.y, 0);
+      playerRef.current.position.set(
+        gameState.playerPosition.x,
+        GAME_HEIGHT - gameState.playerPosition.y,
+        0
+      );
 
       // Update platforms
       platformsRef.current.forEach((platform) => sceneRef.current?.remove(platform));
@@ -81,27 +89,35 @@ const App: React.FC = () => {
   }, [gameState]);
 
   const startGame = async () => {
-    await backend.startGame();
-    updateGameState();
+    try {
+      await backend.startGame();
+      updateGameState();
+    } catch (error) {
+      console.error('Error starting game:', error);
+    }
   };
 
   const updateGameState = async () => {
-    const newState = await backend.updateGameState({ jump: false });
-    if (newState) {
-      setGameState({
-        level: Number(newState.level),
-        score: Number(newState.score),
-        isGameOver: newState.isGameOver,
-        playerPosition: {
-          x: Number(newState.playerPosition.x),
-          y: Number(newState.playerPosition.y),
-        },
-        platforms: newState.platforms.map((p) => ({
-          x: Number(p.x),
-          y: Number(p.y),
-          width: Number(p.width),
-        })),
-      });
+    try {
+      const newState = await backend.updateGameState({ jump: false });
+      if (newState) {
+        setGameState({
+          level: Number(newState.level),
+          score: Number(newState.score),
+          isGameOver: newState.isGameOver,
+          playerPosition: {
+            x: Number(newState.playerPosition.x),
+            y: Number(newState.playerPosition.y),
+          },
+          platforms: newState.platforms.map((p) => ({
+            x: Number(p.x),
+            y: Number(p.y),
+            width: Number(p.width),
+          })),
+        });
+      }
+    } catch (error) {
+      console.error('Error updating game state:', error);
     }
   };
 
@@ -113,9 +129,14 @@ const App: React.FC = () => {
   }, [gameState]);
 
   useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
+    const handleKeyPress = async (event: KeyboardEvent) => {
       if (event.code === 'Space') {
-        backend.updateGameState({ jump: true });
+        try {
+          await backend.updateGameState({ jump: true });
+          updateGameState();
+        } catch (error) {
+          console.error('Error handling jump:', error);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyPress);
