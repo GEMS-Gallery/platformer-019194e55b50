@@ -1,0 +1,25 @@
+type Position = 
+ record {
+   x: float64;
+   y: float64;
+ };
+type Platform = 
+ record {
+   width: float64;
+   x: float64;
+   y: float64;
+ };
+type GameState = 
+ record {
+   isGameOver: bool;
+   level: nat;
+   platforms: vec Platform;
+   playerPosition: Position;
+   score: nat;
+ };
+service : {
+  getGameState: () -> (opt GameState) query;
+  getHighScore: () -> (nat) query;
+  startGame: () -> ();
+  updateGameState: (record {jump: bool;}) -> (opt GameState);
+}
